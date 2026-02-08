@@ -159,6 +159,35 @@ export default function CompetitiveIntelligence({
           <p><strong>Recommendation scenarios:</strong> {result.recommendations.recommend_when.length + result.recommendations.do_not_recommend_when.length}</p>
         </div>
 
+        {/* Competitive Positioning Radar Chart - Premium Feature */}
+        {isPremium && result.competitor && (
+          <div className="border-t border-zinc-800 pt-6 mt-4">
+            <div className="flex items-center gap-2 mb-4">
+              <Sparkles className="w-5 h-5 text-[#C24516]" />
+              <h4 className="font-serif text-lg">Competitive Positioning Map</h4>
+            </div>
+            <p className="text-zinc-400 text-sm mb-4">
+              Visual comparison of your product vs {result.competitor.productName} across key market dimensions.
+            </p>
+            <CompetitiveRadarChart
+              userProduct={{
+                name: formData.company_name || 'Your Product',
+                description: formData.product_description,
+                targetPersona: formData.target_audience,
+              }}
+              competitor={{
+                name: result.competitor.productName,
+                url: competitorUrl || result.competitor.url,
+                description: result.competitor.positioning,
+                scrapedContent: result.competitor.description || result.competitor.positioning,
+              }}
+              onDifferentiatorAdd={(diff) => {
+                console.log('Differentiator added:', diff);
+              }}
+            />
+          </div>
+        )}
+
         <div className="flex gap-3 pt-2">
           <Button
             onClick={handleComplete}
