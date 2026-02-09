@@ -91,6 +91,13 @@ export default function Form() {
     // Check for resume link in URL
     const urlParams = new URLSearchParams(window.location.search);
     const resumeId = urlParams.get('resume');
+    const checkoutSessionId = urlParams.get('session_id') || urlParams.get('stripe_session_id');
+    const checkoutStatus = urlParams.get('checkout');
+
+    if (checkoutSessionId || checkoutStatus === 'success') {
+      upgradeToEdge(checkoutSessionId || 'edge_' + Date.now());
+      setIsEdge(true);
+    }
 
     if (resumeId) {
       loadSavedProgress(resumeId);
