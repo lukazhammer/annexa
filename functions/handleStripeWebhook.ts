@@ -25,7 +25,7 @@ export default async function handler(req: Request): Promise<Response> {
             // TODO: Handle successful checkout
             // 1. Extract customer email and transaction ID from event
             // 2. Store tier in database (future)
-            // 3. Send confirmation email via sendPremiumConfirmation function
+            // 3. Send confirmation email function
 
             return new Response(JSON.stringify({
                 success: false,

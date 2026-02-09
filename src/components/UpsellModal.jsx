@@ -10,7 +10,8 @@ export default function UpsellModal({
   onOpenChange,
   onDownloadFree,
   onUpgrade,
-  isPremium: isPremiumProp, // Keep for backward compatibility
+  isEdge: isEdgeProp,
+  isPremium: isPremiumProp, // Backward compatibility
   documents,
   socialBios,
   technicalFiles,
@@ -20,7 +21,7 @@ export default function UpsellModal({
 }) {
   // Use persistent tier from localStorage, fallback to props
   const tier = getUserTier() || tierProp || 'free';
-  const isPremium = tier === 'premium' || isPremiumProp;
+  const isEdge = tier === 'edge' || isEdgeProp || isPremiumProp;
 
   const [downloading, setDownloading] = useState(false);
   const [emailing, setEmailing] = useState(false);
@@ -88,7 +89,7 @@ export default function UpsellModal({
   };
 
   const handleDownloadMarkdown = async () => {
-    if (tier !== 'premium') return;
+    if (!isEdge) return;
 
     setDownloading(true);
     setDownloadError(null);
@@ -110,7 +111,7 @@ export default function UpsellModal({
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `annexa-premium-${formData.company_name.toLowerCase().replace(/\s+/g, '-')}.zip`;
+      a.download = `annexa-edge-${formData.company_name.toLowerCase().replace(/\s+/g, '-')}.zip`;
       document.body.appendChild(a);
       a.click();
       window.URL.revokeObjectURL(url);
@@ -141,8 +142,8 @@ export default function UpsellModal({
     }
   };
 
-  // Premium modal
-  if (tier === 'premium') {
+  // EDGE modal
+  if (isEdge) {
     const hasCompetitiveIntel = competitiveIntel && competitiveIntel.competitor;
 
     return (
@@ -411,13 +412,13 @@ export default function UpsellModal({
             <div className="space-y-2">
               <h3 className="text-lg font-semibold">Need more than legal docs?</h3>
               <p className="text-sm text-zinc-400">
-                Premium ($29): Social bios, enhanced llms.txt with AI recommendations, competitive positioning, rich schema.org data
+                EDGE ($29): Social bios, enhanced llms.txt with AI recommendations, competitive positioning, rich schema.org data
               </p>
             </div>
 
             <div className="space-y-2">
               <Button onClick={onUpgrade} className="w-full bg-[#C24516] hover:bg-[#a33912] text-white h-12">
-                Upgrade ($29)
+                Upgrade to EDGE ($29)
               </Button>
               <Button onClick={onDownloadFree} variant="ghost" className="w-full text-zinc-400 hover:text-white text-sm">
                 Continue with free version

@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Search, Lock, Check, Loader2, Sparkles, ExternalLink } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
-import { getUserTier, getTierFeatures } from '@/lib/tierUtils';
+import { getUserTier } from '@/lib/tierUtils';
 import { CompetitiveRadarChart } from './competitive/CompetitiveRadarChart';
 
 export default function CompetitiveIntelligence({
@@ -15,6 +16,7 @@ export default function CompetitiveIntelligence({
   onSkip,
   onUpgrade
 }) {
+  const navigate = useNavigate();
   const [competitorUrl, setCompetitorUrl] = useState('');
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [analyzing, setAnalyzing] = useState(false);
@@ -27,10 +29,10 @@ export default function CompetitiveIntelligence({
 
   // Use persistent tier from localStorage, fallback to prop
   const tier = getUserTier() || tierProp || 'free';
-  const isPremium = tier === 'premium';
+  const isEdge = tier === 'edge';
 
   const handleAnalyzeClick = () => {
-    if (!isPremium) {
+    if (!isEdge) {
       setShowUpgradeModal(true);
       base44.analytics.track({
         eventName: 'competitive_intel_paywall_shown',
@@ -121,6 +123,15 @@ export default function CompetitiveIntelligence({
   };
 
   const handleComplete = () => {
+    // Navigate to dedicated EDGE results page
+    navigate('/CompetitiveResults', {
+      state: {
+        result,
+        formData,
+        competitorUrl
+      }
+    });
+    // Also call the parent callback for backward compatibility
     onComplete(result);
   };
 
@@ -159,8 +170,8 @@ export default function CompetitiveIntelligence({
           <p><strong>Recommendation scenarios:</strong> {result.recommendations.recommend_when.length + result.recommendations.do_not_recommend_when.length}</p>
         </div>
 
-        {/* Competitive Positioning Radar Chart - Premium Feature */}
-        {isPremium && result.competitor && (
+        {/* Competitive Positioning Radar Chart - EDGE Feature */}
+        {isEdge && result.competitor && (
           <div className="border-t border-zinc-800 pt-6 mt-4">
             <div className="flex items-center gap-2 mb-4">
               <Sparkles className="w-5 h-5 text-[#C24516]" />
@@ -228,8 +239,8 @@ export default function CompetitiveIntelligence({
           </div>
         </div>
 
-        {/* Competitive Positioning Radar Chart - Premium Feature */}
-        {isPremium ? (
+        {/* Competitive Positioning Radar Chart - EDGE Feature */}
+        {isEdge ? (
           <div className="border-t border-zinc-800 pt-6">
             <div className="flex items-center gap-2 mb-4">
               <Sparkles className="w-5 h-5 text-[#C24516]" />
@@ -270,7 +281,7 @@ export default function CompetitiveIntelligence({
                 onClick={onUpgrade}
                 className="bg-[#C24516] hover:bg-[#A03814] text-white"
               >
-                Upgrade to Premium ($29)
+                Upgrade to EDGE ($29)
               </Button>
             </div>
           </div>
@@ -368,7 +379,7 @@ export default function CompetitiveIntelligence({
         <div className="flex items-center gap-2">
           <Search className="w-5 h-5 text-zinc-400" />
           <h3 className="text-lg font-semibold text-white">Competitive Intelligence</h3>
-          {!isPremium && <Lock className="w-4 h-4 text-zinc-500" />}
+          {!isEdge && <Lock className="w-4 h-4 text-zinc-500" />}
         </div>
 
         <p className="text-zinc-400 text-sm">
@@ -394,7 +405,7 @@ export default function CompetitiveIntelligence({
             variant="outline"
             className="border-[#C24516] text-[#C24516] hover:bg-[#C24516] hover:text-white bg-transparent whitespace-nowrap"
           >
-            Analyze {!isPremium && <Lock className="w-3 h-3 ml-1" />}
+            Analyze {!isEdge && <Lock className="w-3 h-3 ml-1" />}
           </Button>
         </div>
 
@@ -402,21 +413,21 @@ export default function CompetitiveIntelligence({
           <p className="text-red-500 text-sm">{error}</p>
         )}
 
-        {!isPremium && (
+        {!isEdge && (
           <div className="border-t border-zinc-800 pt-4 mt-4">
             <div className="flex items-center gap-2 text-zinc-400 text-sm mb-3">
               <Lock className="w-4 h-4" />
-              <span>Premium Feature</span>
+              <span>EDGE Feature</span>
             </div>
             <p className="text-zinc-500 text-sm mb-3">
-              Unlock competitive intelligence + all premium outputs for $29 one-time.
+              EDGE includes competitive intelligence and export features for $29 one-time.
             </p>
             <div className="flex gap-3">
               <Button
                 onClick={onUpgrade}
                 className="bg-[#C24516] hover:bg-[#a33912] text-white"
               >
-                Upgrade to Premium
+                Upgrade to EDGE
               </Button>
               <Button
                 onClick={onSkip}
@@ -429,7 +440,7 @@ export default function CompetitiveIntelligence({
           </div>
         )}
 
-        {isPremium && (
+        {isEdge && (
           <div className="flex justify-end pt-2">
             <Button
               onClick={onSkip}
@@ -507,7 +518,7 @@ export default function CompetitiveIntelligence({
                 }}
                 className="flex-1 bg-[#C24516] hover:bg-[#a33912] text-white"
               >
-                Upgrade to Premium - $29
+                Upgrade to EDGE - $29
               </Button>
               <Button
                 onClick={() => setShowUpgradeModal(false)}

@@ -20,7 +20,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import CookieConsent from '@/components/CookieConsent';
 import JurisdictionNotice from '@/components/JurisdictionNotice';
 import CompetitiveIntelligence from '@/components/CompetitiveIntelligence';
-import { upgradeToPremium, getUserTier } from '@/lib/tierUtils';
+import { upgradeToEdge, getUserTier } from '@/lib/tierUtils';
 
 export default function Form() {
   const navigate = useNavigate();
@@ -39,7 +39,7 @@ export default function Form() {
     cookie_level: 'analytics',
     services_used: '',
     preset: 'standard',
-    // Premium fields
+    // EDGE fields
     brand_positioning: '',
     key_competitors: '',
     target_pain_points: '',
@@ -54,7 +54,7 @@ export default function Form() {
   const [customCookies, setCustomCookies] = useState('analytics');
   const [showUpsellModal, setShowUpsellModal] = useState(false);
   const [generatedDocuments, setGeneratedDocuments] = useState(null);
-  const [isPremium, setIsPremium] = useState(() => getUserTier() === 'premium');
+  const [isEdge, setIsEdge] = useState(() => getUserTier() === 'edge');
   const [showExitIntent, setShowExitIntent] = useState(false);
   const [showDraftModal, setShowDraftModal] = useState(false);
   const [draftTimestamp, setDraftTimestamp] = useState(null);
@@ -134,7 +134,7 @@ export default function Form() {
 
   useEffect(() => {
     const syncTier = () => {
-      setIsPremium(getUserTier() === 'premium');
+      setIsEdge(getUserTier() === 'edge');
     };
 
     syncTier();
@@ -501,7 +501,7 @@ export default function Form() {
 
   const handleDownloadFree = () => {
     const persistedTier = getUserTier();
-    const resolvedTier = persistedTier === 'premium' || isPremium ? 'premium' : 'free';
+    const resolvedTier = persistedTier === 'edge' || isEdge ? 'edge' : 'free';
 
     base44.analytics.track({
       eventName: 'launch_kit_upsell_dismissed',
@@ -529,9 +529,9 @@ export default function Form() {
 
     // TODO: Implement Stripe payment
     // For now, persist tier to localStorage (survives page refresh)
-    upgradeToPremium('placeholder_' + Date.now());
+    upgradeToEdge('placeholder_' + Date.now());
 
-    setIsPremium(true);
+    setIsEdge(true);
     setShowUpsellModal(false);
     navigate('/preview', {
       state: {
@@ -540,7 +540,7 @@ export default function Form() {
         technicalFiles: generatedDocuments?.technicalFiles,
         competitiveIntel: competitiveIntel,
         formData: formData,
-        tier: 'premium' // Backup in navigation state
+        tier: 'edge' // Backup in navigation state
       }
     });
   };
@@ -781,7 +781,7 @@ export default function Form() {
                   <div className="border-t border-zinc-700 pt-6 mt-6">
                     <CompetitiveIntelligence
                       formData={formData}
-                      tier={isPremium ? 'premium' : 'free'}
+                      tier={isEdge ? 'edge' : 'free'}
                       onComplete={(intel) => {
                         setCompetitiveIntel(intel);
                         setCurrentStep(2);
@@ -794,15 +794,15 @@ export default function Form() {
                         setCurrentStep(2);
                         base44.analytics.track({
                           eventName: 'competitive_intel_skipped',
-                          properties: { tier: isPremium ? 'premium' : 'free' }
+                          properties: { tier: isEdge ? 'edge' : 'free' }
                         });
                       }}
                       onUpgrade={() => {
                         // TODO: Implement Stripe payment
-                        upgradeToPremium('competitive_' + Date.now());
-                        setIsPremium(true);
+                        upgradeToEdge('competitive_' + Date.now());
+                        setIsEdge(true);
                         base44.analytics.track({
-                          eventName: 'competitive_intel_upgrade_clicked',
+                          eventName: 'competitive_intel_edge_clicked',
                           properties: {}
                         });
                       }}
@@ -911,12 +911,12 @@ export default function Form() {
                     )}
                   </div>
 
-                  {/* Premium Fields Section */}
-                  {isPremium && (
+                  {/* EDGE Fields Section */}
+                  {isEdge && (
                     <div className="mt-6 pt-6 border-t border-zinc-700 space-y-4">
                       <div className="bg-[#C24516]/10 border border-[#C24516]/30 rounded-lg p-4 mb-4">
                         <p className="text-sm text-zinc-300">
-                          <span className="text-[#C24516] font-semibold">Premium:</span> Answer these to get highly customized documents and social bios
+                          <span className="text-[#C24516] font-semibold">EDGE:</span> Answer these to get competitive analysis and social bios
                         </p>
                       </div>
 
@@ -1165,13 +1165,13 @@ export default function Form() {
         onOpenChange={setShowUpsellModal}
         onDownloadFree={handleDownloadFree}
         onUpgrade={handleUpgrade}
-        isPremium={isPremium}
+        isEdge={isEdge}
         documents={generatedDocuments?.documents}
         socialBios={generatedDocuments?.socialBios}
         technicalFiles={generatedDocuments?.technicalFiles}
         competitiveIntel={competitiveIntel}
         formData={formData}
-        tier={isPremium ? 'premium' : 'free'}
+        tier={isEdge ? 'edge' : 'free'}
       />
 
       <ExitIntentModal
