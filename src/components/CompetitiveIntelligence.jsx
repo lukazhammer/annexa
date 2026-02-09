@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Search, Lock, Check, Loader2, Sparkles, ExternalLink } from 'lucide-react';
+import { Search, Lock, Check, Loader2, Sparkles } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { getUserTier } from '@/lib/tierUtils';
 import { CompetitiveRadarChart } from './competitive/CompetitiveRadarChart';
