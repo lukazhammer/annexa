@@ -200,7 +200,7 @@ export default function Form() {
     const handleMouseLeave = (e) => {
       // Check if mouse is leaving from top of viewport
       if (e.clientY <= 0) {
-        const requiredFields = ['company_name', 'product_description', 'company_lead', 'country', 'contact_email'];
+        const requiredFields = ['company_name', 'product_description', 'company_lead', 'country'];
         const filledFields = requiredFields.filter(key => formData[key]?.toString().trim()).length;
         const progressPercentage = Math.round((filledFields / requiredFields.length) * 100);
         const allFieldsFilled = isStep1Complete() && isStep2Complete() && isStep3Complete();
@@ -219,10 +219,13 @@ export default function Form() {
 
   useEffect(() => {
     if (showExitIntent) {
+      const progress = calculateProgress();
+      const totalCompleted = progress.foundation.completed + progress.legalBasics.completed + progress.contact.completed;
+      const totalFields = progress.foundation.fields.length + progress.legalBasics.fields.length + progress.contact.fields.length;
       base44.analytics.track({
         eventName: 'launch_kit_exit_intent_shown',
         properties: {
-          completion_percentage: Math.round((calculateProgress().completed / calculateProgress().total) * 100)
+          completion_percentage: Math.round((totalCompleted / totalFields) * 100)
         }
       });
     }
@@ -255,7 +258,7 @@ export default function Form() {
         return `Add at least 50 characters (${value.trim().length}/50)`;
       }
     }
-    const requiredFields = ['company_name', 'product_description', 'company_lead', 'country', 'contact_email'];
+    const requiredFields = ['company_name', 'product_description', 'company_lead', 'country'];
     if (requiredFields.includes(field) && !value?.trim()) {
       return 'This field is required';
     }
@@ -286,7 +289,7 @@ export default function Form() {
     }
 
     // Track first field filled
-    const requiredFields = ['company_name', 'product_description', 'company_lead', 'country', 'contact_email'];
+    const requiredFields = ['company_name', 'product_description', 'company_lead', 'country'];
     const wasEmpty = requiredFields.every(f => !formData[f]?.trim());
     if (wasEmpty && value?.trim()) {
       base44.analytics.track({
@@ -416,7 +419,7 @@ export default function Form() {
   };
 
   const isStep3Complete = () => {
-    return formData.company_lead?.trim() && formData.contact_email?.trim();
+    return formData.company_lead?.trim();
   };
 
   const calculateProgress = () => {
@@ -429,14 +432,14 @@ export default function Form() {
       completed: ['country', 'preset'].filter(f => formData[f]?.trim()).length
     };
     const contact = {
-      fields: ['company_lead', 'contact_email'],
-      completed: ['company_lead', 'contact_email'].filter(f => formData[f]?.trim()).length
+      fields: ['company_lead'],
+      completed: ['company_lead'].filter(f => formData[f]?.trim()).length
     };
     return { foundation, legalBasics, contact };
   };
 
   const validateForm = () => {
-    const requiredFields = ['company_name', 'product_description', 'company_lead', 'country', 'contact_email'];
+    const requiredFields = ['company_name', 'product_description', 'company_lead', 'country'];
     const newErrors = {};
     const newTouched = {};
 
@@ -547,7 +550,9 @@ export default function Form() {
 
   const handleSaveProgress = async (email) => {
     const progress = calculateProgress();
-    const progressPercentage = Math.round((progress.completed / progress.total) * 100);
+    const totalCompleted = progress.foundation.completed + progress.legalBasics.completed + progress.contact.completed;
+    const totalFields = progress.foundation.fields.length + progress.legalBasics.fields.length + progress.contact.fields.length;
+    const progressPercentage = Math.round((totalCompleted / totalFields) * 100);
 
     await base44.functions.invoke('saveProgress', {
       email,
@@ -559,7 +564,7 @@ export default function Form() {
       eventName: 'launch_kit_exit_intent_submitted',
       properties: {
         completion_percentage: progressPercentage,
-        fields_filled: progress.completed
+        fields_filled: totalCompleted
       }
     });
 
@@ -567,10 +572,14 @@ export default function Form() {
   };
 
   const handleExitIntentDismiss = () => {
+    const progress = calculateProgress();
+    const totalCompleted = progress.foundation.completed + progress.legalBasics.completed + progress.contact.completed;
+    const totalFields = progress.foundation.fields.length + progress.legalBasics.fields.length + progress.contact.fields.length;
+
     base44.analytics.track({
       eventName: 'launch_kit_exit_intent_dismissed',
       properties: {
-        completion_percentage: Math.round((calculateProgress().completed / calculateProgress().total) * 100)
+        completion_percentage: Math.round((totalCompleted / totalFields) * 100)
       }
     });
 
@@ -896,7 +905,7 @@ export default function Form() {
                   </div>
 
                   <div>
-                    <Label className="text-white mb-2 block text-base sm:text-sm">Where can users reach you? *</Label>
+                    <Label className="text-white mb-2 block text-base sm:text-sm">Public support email (optional)</Label>
                     <Input
                       type="email"
                       value={formData.contact_email}
@@ -906,6 +915,7 @@ export default function Form() {
                         }`}
                       placeholder="hello@acme.com"
                     />
+                    <p className="text-zinc-500 text-xs mt-1">Used in your generated docs if provided.</p>
                     {errors.contact_email && touched.contact_email && (
                       <p className="text-red-500 text-xs mt-1">{errors.contact_email}</p>
                     )}

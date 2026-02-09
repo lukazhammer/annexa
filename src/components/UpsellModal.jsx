@@ -24,10 +24,7 @@ export default function UpsellModal({
   const isEdge = tier === 'edge' || isEdgeProp || isPremiumProp;
 
   const [downloading, setDownloading] = useState(false);
-  const [emailing, setEmailing] = useState(false);
-  const [emailSent, setEmailSent] = useState(false);
   const [downloadError, setDownloadError] = useState(null);
-  const [emailError, setEmailError] = useState(null);
   const [showVoxPromo, setShowVoxPromo] = useState(true);
   const [copiedBio, setCopiedBio] = useState(null);
   const [showLlmsTxt, setShowLlmsTxt] = useState(false);
@@ -120,25 +117,6 @@ export default function UpsellModal({
       setDownloadError('Failed to generate zip. Please try again.');
     } finally {
       setDownloading(false);
-    }
-  };
-
-  const handleEmailCopy = async () => {
-    setEmailing(true);
-    setEmailError(null);
-    try {
-      await base44.functions.invoke('emailLaunchKit', {
-        documents,
-        productName: formData.company_name,
-        contactEmail: formData.contact_email,
-        withWatermark: tier === 'free'
-      });
-      setEmailSent(true);
-      setTimeout(() => setEmailSent(false), 3000);
-    } catch (err) {
-      setEmailError('Failed to send email. Please try again.');
-    } finally {
-      setEmailing(false);
     }
   };
 
@@ -263,9 +241,9 @@ export default function UpsellModal({
               </div>
             )}
 
-            {(downloadError || emailError) && (
+            {downloadError && (
               <div className="bg-red-500/10 border border-red-500/50 rounded-lg p-3">
-                <p className="text-red-500 text-sm">{downloadError || emailError}</p>
+                <p className="text-red-500 text-sm">{downloadError}</p>
               </div>
             )}
 
@@ -293,18 +271,11 @@ export default function UpsellModal({
                   <Download className="w-4 h-4 mr-2" />PDF Only
                 </Button>
                 <Button
-                  onClick={handleEmailCopy}
-                  disabled={emailing}
+                  onClick={onDownloadFree}
                   variant="outline"
                   className="flex-1 border-zinc-700 text-white hover:bg-zinc-800"
                 >
-                  {emailing ? (
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                  ) : emailSent ? (
-                    <><CheckCircle className="w-4 h-4 mr-2 text-green-500" />Sent!</>
-                  ) : (
-                    <><Mail className="w-4 h-4 mr-2" />Email</>
-                  )}
+                  <><Mail className="w-4 h-4 mr-2" />View documents</>
                 </Button>
               </div>
 
@@ -376,9 +347,9 @@ export default function UpsellModal({
             </div>
           </div>
 
-          {(downloadError || emailError) && (
+          {downloadError && (
             <div className="bg-red-500/10 border border-red-500/50 rounded-lg p-3">
-              <p className="text-red-500 text-sm">{downloadError || emailError}</p>
+              <p className="text-red-500 text-sm">{downloadError}</p>
             </div>
           )}
 
@@ -397,14 +368,6 @@ export default function UpsellModal({
           <div className="flex items-center justify-center gap-3 text-sm text-zinc-400">
             <button onClick={onDownloadFree} className="hover:text-white transition-colors">
               View documents
-            </button>
-            <span className="text-zinc-600">|</span>
-            <button
-              onClick={handleEmailCopy}
-              disabled={emailing}
-              className="hover:text-white transition-colors disabled:opacity-50"
-            >
-              {emailing ? 'Sending...' : emailSent ? `Sent to ${formData.contact_email}!` : 'Email to me'}
             </button>
           </div>
 

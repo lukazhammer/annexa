@@ -275,7 +275,7 @@ export default function CompetitiveIntelligence({
               <Lock className="w-8 h-8 text-zinc-500 mx-auto mb-3" />
               <h4 className="font-serif text-lg mb-1">Competitive Positioning Map</h4>
               <p className="text-zinc-400 text-sm mb-4">
-                Unlock visual comparison across AI-generated market dimensions.
+                Compare products across AI-generated market dimensions.
               </p>
               <Button
                 onClick={onUpgrade}
