@@ -412,13 +412,13 @@ export default function UpsellModal({
             <div className="space-y-2">
               <h3 className="text-lg font-semibold">Need more than legal docs?</h3>
               <p className="text-sm text-zinc-400">
-                EDGE ($29): Social bios, enhanced llms.txt with AI recommendations, competitive positioning, rich schema.org data
+                EDGE ($19): Social bios, enhanced llms.txt with AI recommendations, competitive positioning, rich schema.org data
               </p>
             </div>
 
             <div className="space-y-2">
               <Button onClick={onUpgrade} className="w-full bg-[#C24516] hover:bg-[#a33912] text-white h-12">
-                Upgrade to EDGE ($29)
+                Upgrade to EDGE ($19)
               </Button>
               <Button onClick={onDownloadFree} variant="ghost" className="w-full text-zinc-400 hover:text-white text-sm">
                 Continue with free version

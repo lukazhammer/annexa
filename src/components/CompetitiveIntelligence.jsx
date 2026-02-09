@@ -281,7 +281,7 @@ export default function CompetitiveIntelligence({
                 onClick={onUpgrade}
                 className="bg-[#C24516] hover:bg-[#A03814] text-white"
               >
-                Upgrade to EDGE ($29)
+                Upgrade to EDGE ($19)
               </Button>
             </div>
           </div>
@@ -420,7 +420,7 @@ export default function CompetitiveIntelligence({
               <span>EDGE Feature</span>
             </div>
             <p className="text-zinc-500 text-sm mb-3">
-              EDGE includes competitive intelligence and export features for $29 one-time.
+              EDGE includes competitive intelligence and export features for $19 one-time.
             </p>
             <div className="flex gap-3">
               <Button
@@ -518,7 +518,7 @@ export default function CompetitiveIntelligence({
                 }}
                 className="flex-1 bg-[#C24516] hover:bg-[#a33912] text-white"
               >
-                Upgrade to EDGE - $29
+                Upgrade to EDGE - $19
               </Button>
               <Button
                 onClick={() => setShowUpgradeModal(false)}
