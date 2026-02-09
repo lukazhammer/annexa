@@ -54,7 +54,7 @@ export default function Form() {
   const [customCookies, setCustomCookies] = useState('analytics');
   const [showUpsellModal, setShowUpsellModal] = useState(false);
   const [generatedDocuments, setGeneratedDocuments] = useState(null);
-  const [isPremium, setIsPremium] = useState(false);
+  const [isPremium, setIsPremium] = useState(() => getUserTier() === 'premium');
   const [showExitIntent, setShowExitIntent] = useState(false);
   const [showDraftModal, setShowDraftModal] = useState(false);
   const [draftTimestamp, setDraftTimestamp] = useState(null);
@@ -131,6 +131,16 @@ export default function Form() {
       }
     }
   }, [scanResults, existingData]);
+
+  useEffect(() => {
+    const syncTier = () => {
+      setIsPremium(getUserTier() === 'premium');
+    };
+
+    syncTier();
+    window.addEventListener('storage', syncTier);
+    return () => window.removeEventListener('storage', syncTier);
+  }, []);
 
   useEffect(() => {
     // Keyboard shortcuts
@@ -490,9 +500,12 @@ export default function Form() {
   };
 
   const handleDownloadFree = () => {
+    const persistedTier = getUserTier();
+    const resolvedTier = persistedTier === 'premium' || isPremium ? 'premium' : 'free';
+
     base44.analytics.track({
       eventName: 'launch_kit_upsell_dismissed',
-      properties: { tier: 'free' }
+      properties: { tier: resolvedTier }
     });
 
     setShowUpsellModal(false);
@@ -503,7 +516,7 @@ export default function Form() {
         technicalFiles: generatedDocuments?.technicalFiles,
         competitiveIntel: competitiveIntel,
         formData: formData,
-        tier: 'free'
+        tier: resolvedTier
       }
     });
   };
@@ -786,6 +799,7 @@ export default function Form() {
                       }}
                       onUpgrade={() => {
                         // TODO: Implement Stripe payment
+                        upgradeToPremium('competitive_' + Date.now());
                         setIsPremium(true);
                         base44.analytics.track({
                           eventName: 'competitive_intel_upgrade_clicked',
